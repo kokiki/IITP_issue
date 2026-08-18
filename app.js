@@ -24,6 +24,7 @@ const sourceCatalog = {
   국제기구: ['Regulation (EU) 2024/1689 — Artificial Intelligence Act · 2024.06.13', 'https://eur-lex.europa.eu/eli/reg/2024/1689/oj?locale=en']
 };
 let lastProviderResults = null;
+let lastReportMarkdown = '';
 const templateFileInput = document.querySelector('#template-file');
 const analyzeTemplateButton = document.querySelector('#analyze-template-btn');
 const templateStatus = document.querySelector('#template-status');
@@ -65,6 +66,9 @@ function renderDraft(draft) {
   document.querySelector('#source-count').textContent = `참고 소스 ${state.sources.length}개 · 최근 ${state.period}`;
   document.querySelector('#result-date').textContent = `${new Date().toLocaleDateString('ko-KR')} · 방금 생성됨`;
   document.querySelector('.result-status').innerHTML = '<i></i> 초안 생성 완료';
+  const blocks = draft.blocks.map(([, heading, copy]) => `## ${heading}\n\n${copy}`).join('\n\n');
+  lastReportMarkdown = `# ${draft.title.replace(/\n/g, ' ')}\n\n## 핵심 요약\n\n${draft.summary}\n\n${blocks}\n\n## 참고 출처\n\n${state.sources.map((source, index) => `[${index + 1}] ${sourceCatalog[source][0]} — ${sourceCatalog[source][1]}`).join('\n')}`;
+  document.querySelector('#hwpx-btn').disabled = false;
 }
 
 function escapeHtml(value) { return value.replace(/[&<>'"]/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[character])); }
@@ -111,7 +115,7 @@ function resetContent() {
   renderDraft(generateDraft(state));
   providerResults.hidden = true;
   reportBody.hidden = false;
-  document.querySelector('#hwpx-btn').disabled = true;
+  document.querySelector('#hwpx-btn').disabled = false;
 }
 
 function setTemplateStatus(message, tone = 'idle') {
@@ -151,6 +155,13 @@ function reportTypeLabel() { return document.querySelector('input[name="report-t
 
 function renderProviderResults(results) {
   lastProviderResults = results;
+  const successful = [results?.openai, results?.gemini].filter((result) => result?.status === 'success' && result.text);
+  if (successful.length) {
+    const sourceLines = successful.flatMap((result) => result.sources || []).filter((source, index, all) => all.findIndex((item) => item.url === source.url) === index);
+    lastReportMarkdown = `# 이슈 대응 보고서\n\n${successful.map((result) => `## ${result.provider === 'openai' ? 'OpenAI 검색 결과' : 'Gemini 검색 결과'}\n\n${result.text}`).join('\n\n')}\n\n## 참고 출처\n\n${sourceLines.map((source, index) => `[${index + 1}] ${source.title} — ${source.url}`).join('\n')}`;
+  } else {
+    lastReportMarkdown = '';
+  }
   const cards = [results?.openai, results?.gemini].map((result) => {
     const label = result?.provider === 'openai' ? 'OpenAI Web Search' : 'Gemini Google Search';
     const isSuccess = result?.status === 'success';
@@ -163,19 +174,18 @@ function renderProviderResults(results) {
   providerGrid.innerHTML = cards;
   reportBody.hidden = true;
   providerResults.hidden = false;
-  document.querySelector('#hwpx-btn').disabled = ![results?.openai, results?.gemini].some((result) => result?.status === 'success');
+  document.querySelector('#hwpx-btn').disabled = !lastReportMarkdown;
 }
 
 async function downloadHwpx() {
-  const result = lastProviderResults?.openai?.status === 'success' ? lastProviderResults.openai : lastProviderResults?.gemini;
-  if (!result?.text) return;
-  const sources = (result.sources || []).map((source, index) => `[${index + 1}] ${source.title} — ${source.url}`).join('\n');
-  const markdown = `# 이슈 대응 보고서\n\n${result.text}\n\n## 참고 출처\n\n${sources}`;
-  const response = await fetch('/api/export', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ markdown }) });
-  if (!response.ok) { alert('HWPX 생성에 실패했습니다.'); return; }
-  const blob = await response.blob();
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a'); link.href = url; link.download = '이슈보고서.hwpx'; link.click(); URL.revokeObjectURL(url);
+  if (!lastReportMarkdown) { alert('먼저 이슈보고서 초안을 생성해 주세요.'); return; }
+  try {
+    const response = await fetch('/api/export', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ markdown: lastReportMarkdown }) });
+    if (!response.ok) { const data = await response.json().catch(() => ({})); throw new Error(data.error || 'HWPX 생성에 실패했습니다.'); }
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a'); link.href = url; link.download = '이슈보고서.hwpx'; link.click(); URL.revokeObjectURL(url);
+  } catch (error) { alert(error.message); }
 }
 
 async function searchWithProviders() {
@@ -212,3 +222,5 @@ document.querySelector('#copy-btn').addEventListener('click', async () => { awai
 document.querySelector('#hwpx-btn').addEventListener('click', downloadHwpx);
 document.querySelector('#refresh-btn').addEventListener('click', resetContent);
 loadSessionKeys();
+syncState();
+renderDraft(generateDraft(state));
