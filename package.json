@@ -1,0 +1,15 @@
+{
+  "name": "briefly-issue-report-generator",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node server.mjs",
+    "build": "node --check app.js && node --check server.mjs && node --check app/api/search/route.js && node --check app/api/template/route.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "kordoc": "^4.8.1"
+  }
+}

@@ -1,0 +1,10 @@
+.report-blocks p{line-height:1.8}
+.source-reference{margin-top:24px;padding-top:20px;border-top:1px solid #ded8cd}
+.source-reference-heading{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:10px}
+.source-reference-heading span{font-size:12px;font-weight:700}
+.source-reference-heading small{color:#9a9d94;font-size:9px}
+.source-list{display:grid;gap:7px}
+.source-list a{display:flex;align-items:center;gap:9px;padding:9px 10px;border:1px solid #e1dbd1;border-radius:7px;background:#fffaf3;color:#66716b;text-decoration:none;font-size:10px}
+.source-list a:hover{border-color:var(--green);color:var(--green)}
+.source-list .source-type{min-width:74px;color:var(--orange);font:9px 'DM Mono',monospace}
+.source-list b{margin-left:3px;color:var(--green);font-size:12px}

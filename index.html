@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="이슈 대응 및 성과 보고서 초안 생성기" />
+    <title>Briefly · 이슈 대응 보고서 초안 생성기</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="fixes.css" />
+    <link rel="stylesheet" href="keys.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="#" aria-label="Briefly 홈">
+          <span class="brand-mark"><span></span><span></span><span></span></span>
+          <span>briefly</span>
+        </a>
+        <div class="topbar-meta"><span class="live-dot"></span> AI 보고서 초안 도구 <span class="version">BETA</span></div>
+      </header>
+
+      <main class="workspace">
+        <section class="intro">
+          <div>
+            <p class="eyebrow">ISSUE RESPONSE / PERFORMANCE BRIEF</p>
+            <h1>복잡한 이슈를<br /><em>한 장의 방향</em>으로.</h1>
+            <p class="intro-copy">키워드나 기사 본문을 입력하면, 대응에 필요한 핵심 맥락과 실행 방향을 빠르게 정리합니다.</p>
+          </div>
+          <div class="intro-note"><span class="note-line"></span><span>공공·정책 이슈에 최적화된<br />보고서 초안 생성기</span></div>
+        </section>
+
+        <section class="panel key-panel" aria-labelledby="key-title">
+          <div class="key-panel-heading">
+            <div><p class="section-kicker">SETTINGS / API SESSION</p><h2 id="key-title">API 키 설정</h2><p class="key-description">보고서 생성 API를 연결할 때 사용할 키를 입력하세요. 키는 이 브라우저 탭의 세션에만 저장됩니다.</p></div>
+            <span class="session-badge"><i></i> SESSION ONLY</span>
+          </div>
+          <div class="key-fields">
+            <div class="key-field"><label class="field-label" for="openai-key">OpenAI API 키</label><input id="openai-key" class="key-input" type="password" autocomplete="off" spellcheck="false" placeholder="sk-…" /><small>OpenAI 모델 연결용</small></div>
+            <div class="key-field"><label class="field-label" for="gemini-key">Gemini API 키</label><input id="gemini-key" class="key-input" type="password" autocomplete="off" spellcheck="false" placeholder="AIza…" /><small>Google Gemini 모델 연결용</small></div>
+          </div>
+          <div class="key-actions"><div class="key-status" id="key-status" role="status" aria-live="polite"><span class="status-icon">i</span><span>키를 입력한 뒤 세션 저장을 눌러주세요.</span></div><div class="button-row"><button id="session-save-btn" class="secondary-btn" type="button">세션 저장</button><button id="session-clear-btn" class="ghost-btn" type="button">세션 비우기</button></div></div>
+          <p class="session-note">⌁ 탭을 닫으면 저장된 API 키가 자동으로 삭제됩니다. 서버 로그나 보고서 결과에는 표시하지 않습니다.</p>
+        </section>
+
+        <section class="panel template-panel" aria-labelledby="template-title">
+          <div class="template-heading"><div><p class="section-kicker">TEMPLATE / FORMAT</p><h2 id="template-title">보고서 양식 분석</h2><p class="template-description">기존 HWP·HWPX·Word·PDF·Excel 양식을 올리면 제목과 항목 순서를 분석해 보고서 생성에 반영합니다.</p></div><span class="template-badge">6 FORMATS</span></div>
+          <div class="template-upload-row"><label class="file-picker"><input id="template-file" type="file" accept=".hwp,.hwpx,.docx,.pdf,.xlsx,.xls" /><span class="upload-icon">↑</span><span><strong>양식 파일 선택</strong><small>HWP · HWPX · DOCX · PDF · XLSX · XLS / 최대 25MB</small></span></label><button id="analyze-template-btn" class="secondary-btn" type="button" disabled>양식 분석하기</button></div>
+          <div id="template-status" class="template-status" role="status" aria-live="polite"><span class="status-icon">i</span><span>파일을 선택하면 분석 상태가 표시됩니다.</span></div>
+          <div id="template-preview" class="template-preview" hidden><div class="template-preview-head"><strong id="template-filename"></strong><span id="template-complete">분석 완료</span></div><pre id="template-markdown"></pre></div>
+        </section>
+
+        <div class="content-grid">
+          <section class="panel input-panel" aria-labelledby="input-title">
+            <div class="panel-heading">
+              <div><p class="section-kicker">01 / INPUT</p><h2 id="input-title">무엇을 정리할까요?</h2></div>
+              <span class="step-badge">입력</span>
+            </div>
+            <label class="field-label" for="source-input">키워드 또는 뉴스 기사 본문 <span>필수</span></label>
+            <div class="textarea-wrap">
+              <textarea id="source-input" maxlength="2000" placeholder="예: 생성형 AI 규제 동향, 딥페이크 대응 정책…\n\n기사 본문을 그대로 붙여넣어도 됩니다."></textarea>
+              <div class="char-count"><span id="char-count">0</span> / 2,000</div>
+            </div>
+            <div class="suggestions"><span>빠른 시작</span><button type="button" class="suggestion" data-fill="생성형 AI 규제 동향">생성형 AI 규제 동향</button><button type="button" class="suggestion" data-fill="지역 소멸 대응 정책">지역 소멸 대응 정책</button></div>
+
+            <div class="form-section">
+              <div class="field-label">보고서 유형</div>
+              <div class="segmented" role="radiogroup" aria-label="보고서 유형">
+                <label class="segment active"><input type="radio" name="report-type" value="one-page" checked /><span class="segment-icon">▤</span><span><strong>보고용 1장 페이퍼</strong><small>핵심만 빠르게 공유</small></span></label>
+                <label class="segment"><input type="radio" name="report-type" value="status" /><span class="segment-icon">☷</span><span><strong>현황 · 문제점 · 대응방향</strong><small>구조화된 이슈 분석</small></span></label>
+              </div>
+            </div>
+
+            <div class="form-section two-col">
+              <div><div class="field-label">검색 기간</div><select id="period"><option value="7일">최근 7일</option><option value="30일" selected>최근 30일</option><option value="1년">최근 1년</option><option value="전체">전체 기간</option></select></div>
+              <div><div class="field-label">참고 소스</div><div class="source-grid" id="source-options"><label class="check selected"><input type="checkbox" value="정부·공공기관" checked /><span class="check-box">✓</span>정부·공공기관</label><label class="check selected"><input type="checkbox" value="연구·학술" checked /><span class="check-box">✓</span>연구·학술</label><label class="check selected"><input type="checkbox" value="뉴스" checked /><span class="check-box">✓</span>뉴스</label><label class="check"><input type="checkbox" value="기업" /><span class="check-box">✓</span>기업</label><label class="check"><input type="checkbox" value="국제기구" /><span class="check-box">✓</span>국제기구</label></div></div>
+            </div>
+
+            <div class="input-actions"><button id="generate-btn" class="generate-btn" type="button"><span class="spark">✦</span><span>보고서 초안 생성하기</span><span class="arrow">→</span></button><button id="content-reset-btn" class="content-reset-btn" type="button">입력·결과 리셋</button></div>
+            <p class="privacy-note"><span>⌁</span> 입력 내용은 현재 브라우저에서만 처리되는 예시 화면입니다.</p>
+          </section>
+
+          <section class="panel result-panel" aria-labelledby="result-title">
+            <div class="panel-heading result-heading"><div><p class="section-kicker">02 / OUTPUT</p><h2 id="result-title">생성 결과</h2></div><div class="result-actions"><button id="copy-btn" type="button" title="보고서 복사">복사</button><button id="refresh-btn" type="button" title="예시 결과로 초기화">↻</button></div></div>
+            <div class="result-body" id="result-body">
+              <div class="result-meta"><span class="result-status"><i></i> 초안 준비 완료</span><span id="result-date">2026. 08. 18 · 14:32</span></div>
+              <div class="report-title-wrap"><p class="report-label">이슈 대응 브리프</p><h3 id="report-title">생성형 AI 규제 동향과<br />공공부문 대응 방향</h3></div>
+              <div class="report-summary"><span class="summary-label">한 줄 요약</span><p id="report-summary">생성형 AI의 확산에 따라 주요국은 투명성·안전성 중심의 규제 체계를 정비 중이며, 국내 공공부문도 선제적인 활용 원칙과 관리 체계 마련이 필요하다.</p></div>
+              <div class="report-blocks" id="report-blocks"><article><div class="block-number">01</div><div><h4>현황</h4><p>EU AI Act를 시작으로 미국·영국 등 주요국이 위험 기반 규제와 자율 규범을 병행하고 있다.<br />국내에서도 관련 법·가이드라인 논의가 구체화되는 단계다.<br />공공부문은 민간보다 높은 수준의 설명 가능성과 책임성을 요구받는다.<br />따라서 정책 변화와 현장 적용 사례를 함께 살펴볼 필요가 있다.</p></div></article><article><div class="block-number">02</div><div><h4>핵심 포인트</h4><p>규제 대응과 기술 혁신의 균형이 주요 쟁점이다.<br />공공서비스 도입 시 데이터 출처와 결과 검증 절차를 사전에 정해야 한다.<br />오류나 편향이 발생했을 때 책임 주체와 수정 절차도 명확해야 한다.<br />기관별 활용 수준에 맞춘 단계적 관리 기준이 필요하다.</p></div></article><article class="direction"><div class="block-number">03</div><div><h4>대응 방향</h4><p>① 공공부문 생성형 AI 활용 원칙을 수립한다.<br />② 고위험 업무를 선별해 사전 영향평가를 도입한다.<br />③ 담당자 교육과 검증된 활용 사례를 축적한다.<br />④ 분기별 점검을 통해 지침과 운영 기준을 보완한다.</p></div></article></div>
+              <div class="source-reference"><div class="source-reference-heading"><span>참고 소스</span><small>선택한 출처를 확인하세요</small></div><div class="source-list" id="source-list"><a href="https://www.korea.kr/news/policyNewsView.do?newsId=148968171" target="_blank" rel="noreferrer"><span class="source-type">정부·공공기관</span><span>달라진 AI기본법, 우리에게 어떤 변화가 생길까? · 2026.07.17 <b>↗</b></span></a><a href="https://arxiv.org/abs/2412.11335" target="_blank" rel="noreferrer"><span class="source-type">연구·학술</span><span>Generative AI regulation can learn from social media regulation · 2024.12.15 <b>↗</b></span></a><a href="https://www.yna.co.kr/view/AKR20260717037800017" target="_blank" rel="noreferrer"><span class="source-type">뉴스</span><span>[AI기본법] ② 규제냐 성장판이냐…AI산업 첫 시험대 · 2026.07.19 <b>↗</b></span></a></div></div>
+              <div class="report-footer"><span id="source-count">참고 소스 3개 · 최근 30일</span><span class="mono">BRIEF / 001</span></div>
+            </div>
+            <div class="provider-results" id="provider-results" hidden>
+              <div class="provider-results-head"><span>실시간 검색 결과</span><small>OpenAI Web Search · Gemini Google Search</small></div>
+              <div class="provider-grid" id="provider-grid"></div>
+            </div>
+            <div class="empty-state" id="empty-state" hidden><div class="empty-icon">✦</div><h3>이슈를 입력해 주세요</h3><p>왼쪽에 키워드나 기사 본문을 입력하면<br />맞춤형 보고서 초안이 이곳에 표시됩니다.</p></div>
+          </section>
+        </div>
+      </main>
+      <footer class="footer"><span>BRIEFLY / ISSUE RESPONSE TOOL</span><span>Draft first. Decide clearly.</span></footer>
+    </div>
+    <script src="app.js"></script>
+  </body>
+</html>
