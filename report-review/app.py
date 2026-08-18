@@ -47,10 +47,10 @@ NODE_BIN = os.environ.get(
     "CODEX_NODE_BIN",
     str(BASE_DIR / "tools" / "node" / "node.exe"),
 )
-DEFAULT_XLSX_EXPORTER = BASE_DIR / "tools" / "node" / "xlsx_exporter.mjs"
-if not DEFAULT_XLSX_EXPORTER.exists():
-    DEFAULT_XLSX_EXPORTER = BASE_DIR / "xlsx_exporter.mjs"
-XLSX_EXPORTER = Path(os.environ.get("XLSX_EXPORTER", DEFAULT_XLSX_EXPORTER))
+DEFAULT_HWPX_EXPORTER = BASE_DIR / "tools" / "node" / "hwpx_exporter.mjs"
+if not DEFAULT_HWPX_EXPORTER.exists():
+    DEFAULT_HWPX_EXPORTER = BASE_DIR / "hwpx_exporter.mjs"
+HWPX_EXPORTER = Path(os.environ.get("HWPX_EXPORTER", DEFAULT_HWPX_EXPORTER))
 
 FILE_CRITERIA = {
     "project": ("과제수행결과 우수여부", "연구책임자명·주관기관명 일치"),
@@ -719,8 +719,8 @@ def run_review_job(job_id: str, uploaded_files: list[tuple[str, bytes]], params:
         export_input = EXPORT_DIR / f"{job_id}.json"
         export_input.write_text(json.dumps(job, ensure_ascii=False), encoding="utf-8")
         subprocess.run(
-            [NODE_BIN, str(XLSX_EXPORTER), str(export_input),
-             str(EXPORT_DIR / f"review_{job_id}.xlsx")],
+            [NODE_BIN, str(HWPX_EXPORTER), str(export_input),
+             str(EXPORT_DIR / f"review_{job_id}.hwpx")],
             check=True, timeout=120,
         )
         set_state(
@@ -819,10 +819,10 @@ def review_data(job_id):
 
 @app.get("/download/<job_id>")
 def download_review(job_id):
-    path = EXPORT_DIR / f"review_{job_id}.xlsx"
+    path = EXPORT_DIR / f"review_{job_id}.hwpx"
     if not path.exists():
         return "파일이 아직 준비되지 않았습니다.", 404
-    return send_file(path, as_attachment=True, download_name="적격성_검토결과.xlsx")
+    return send_file(path, as_attachment=True, download_name="적격성_요약보고서.hwpx", mimetype="application/vnd.hancom.hwpx")
 
 
 @app.post("/reset")

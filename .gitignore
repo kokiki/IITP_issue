@@ -16,6 +16,7 @@ report-review/build/
 report-review/dist/
 report-review/*.log
 report-review/*.xlsx
+report-review/*.hwpx
 report-review/*.html
 report-review/*.ndjson
 report-review/*.txt
