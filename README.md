@@ -16,7 +16,7 @@ npm run dev
 - OpenAI Web Search 및 Gemini Google Search Grounding 병렬 요청
 - 검색 기간·소스 유형 반영
 - 출처 URL 정리·중복 제거·최대 20개 표시
-- 생성 결과 영역에서 이슈보고서를 HWPX 파일로 다운로드
+- 생성 결과 영역에서 공문서 보고서 형식의 이슈보고서를 HWPX 파일로 다운로드
 - HWP, HWPX, DOCX, PDF, XLSX, XLS 양식 분석
 - API 키는 현재 브라우저 세션의 `sessionStorage`에만 저장
 - API Route Handler는 Node.js 런타임을 사용하며 요청 제한시간은 120초
