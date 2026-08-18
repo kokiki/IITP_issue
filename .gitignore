@@ -6,17 +6,3 @@ dist/
 coverage/
 *.log
 .DS_Store
-
-# Local OCR/Qwen report-review runtime artifacts
-report-review/.venv/
-report-review/models/
-report-review/node_modules/
-report-review/exports/
-report-review/build/
-report-review/dist/
-report-review/*.log
-report-review/*.xlsx
-report-review/*.hwpx
-report-review/*.html
-report-review/*.ndjson
-report-review/*.txt

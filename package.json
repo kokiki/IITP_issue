@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "node server.mjs",
-    "build": "node --check app.js && node --check server.mjs && node --check app/api/search/route.js && node --check app/api/template/route.js"
+    "build": "node --check app.js && node --check server.mjs && node --check app/api/search/route.js && node --check app/api/template/route.js && node --check app/api/export/route.js"
   },
   "engines": {
     "node": ">=20"

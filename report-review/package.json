@@ -1,7 +1,0 @@
-{
-  "name": "iitp-report-review",
-  "private": true,
-  "type": "module",
-  "scripts": { "export:hwpx": "node hwpx_exporter.mjs" },
-  "dependencies": { "kordoc": "^4.8.1" }
-}
