@@ -21,6 +21,10 @@ npm run dev
 - API 키는 현재 브라우저 세션의 `sessionStorage`에만 저장
 - API Route Handler는 Node.js 런타임을 사용하며 요청 제한시간은 120초
 
+## 샘플 HWPX
+
+저장소 루트의 [issue-report.hwpx](./issue-report.hwpx)는 제목·핵심 요약·현황·문제점·대응방향·효과성·시사점·참고 출처 순서로 구성된 샘플 이슈보고서입니다.
+
 ## 환경변수
 
 `.env.example`을 참고하세요. 현재 API 키 입력은 웹 UI에서 이루어지고, 실제 키는 커밋하지 마세요. `.env*` 파일은 Git에서 제외됩니다.
